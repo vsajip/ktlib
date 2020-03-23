@@ -1,4 +1,4 @@
-package org.example
+package com.reddove.ktlib
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

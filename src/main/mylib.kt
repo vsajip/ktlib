@@ -1,4 +1,4 @@
-package org.example
+package com.reddove.ktlib
 
 /**
  * The `Language` type defines a programming language with a name and hotness score.
