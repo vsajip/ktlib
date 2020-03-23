@@ -1,8 +1,11 @@
+import com.jfrog.bintray.gradle.BintrayExtension
+
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.70"
     id("org.jetbrains.dokka") version "0.10.1"
     `java-library`
     `maven-publish`
+    id("com.jfrog.bintray") version "1.8.4"
 }
 
 group = "com.reddove"
@@ -17,6 +20,19 @@ dependencies {
     testImplementation("junit:junit:4.12")
 }
 
+sourceSets {
+    main {
+        java {
+            srcDir("src/main")
+        }
+    }
+    test {
+        java {
+            srcDir("src/test")
+        }
+    }
+}
+
 tasks.withType(Jar::class) {
     manifest {
         attributes["Manifest-Version"] = "1.0"
@@ -27,20 +43,29 @@ tasks.withType(Jar::class) {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("com.reddove.config") {
-            from(components["java"])
-        }
-    }
+fun prop(s: String) = project.findProperty(s) as String?
 
-    repositories {
-        maven {
-            setUrl("https://bintray.com/vsajip/test")
-            metadataSources {
-                gradleMetadata()
-            }
-        }
+publishing {
+    publications.register("publication", MavenPublication::class) {
+        from(components["java"])
     }
 }
 
+val publication by publishing.publications
+
+bintray {
+    user = prop("bintrayUser")
+    key = prop("bintrayAPIKey")
+    publish = true
+    override = true
+    setPublications(publication.name)
+    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
+        repo = "test"
+        name = "com.reddove.ktlib"
+        userOrg = "reddove"
+        websiteUrl = "https://www.red-dove.com"
+        vcsUrl = "https://github.com/vsajip/ktlib"
+        setLabels("configuration")
+        setLicenses("BSD-3-Clause")
+    })
+}
